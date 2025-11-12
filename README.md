@@ -36,3 +36,19 @@ The default presets for modifier shortcuts in keyboard layout options are not on
 This project is unfinished. Some modules are done, others can not yet be compiled, some only compile without autotests.  
 The goal is to port all the initial functionality, resolve tests, then port the further [updates](https://invent.kde.org/plasma/plasma-desktop/-/merge_requests/2342) and [bugfixes](https://bugs.kde.org/show_bug.cgi?id=489187)   
 Currently facing issues resolving phantom Qt dependencies that simultaneously do not yet exist and are [deprecated](https://github.com/Zren/material-decoration/issues/60)
+
+# Build
+```
+git submodule update
+
+sudo apt install build-essential cmake
+
+sudo apt build-dep kglobalaccel kwin kwindowsystem kguiaddons
+```
+
+kwin example:
+```
+cd kwin && mkdir build && cd build
+cmake -G "Unix Makefiles" ..
+make
+```
