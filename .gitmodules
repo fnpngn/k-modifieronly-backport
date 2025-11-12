@@ -1,0 +1,12 @@
+[submodule "kwin"]
+	path = kwin
+	url = https://github.com/fnpngn/kwin-modifieronly-backport.git
+[submodule "kglobalaccel"]
+	path = kglobalaccel
+	url = https://github.com/fnpngn/kglobalaccel-modifieronly-backport.git
+[submodule "kguiaddons"]
+	path = kguiaddons
+	url = https://github.com/fnpngn/kguiaddons-modifieronly-backport.git
+[submodule "kwindowsystem"]
+	path = kwindowsystem
+	url = https://github.com/fnpngn/kwindowsystem-modifieronly-backport.git
