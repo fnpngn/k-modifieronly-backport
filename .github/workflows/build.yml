@@ -26,10 +26,12 @@ jobs:
           
       - name: Enable Ubuntu source repositories
         run: |
-          sudo add-apt-repository "deb-src http://archive.ubuntu.com/ubuntu/ noble main"
-          sudo add-apt-repository "deb-src http://archive.ubuntu.com/ubuntu/ noble-security main"
-          sudo add-apt-repository "deb-src http://archive.ubuntu.com/ubuntu/ noble-updates main"
-          sudo apt update
+          sudo tee /etc/apt/sources.list.d/enable-sources.list << 'EOF'
+          deb-src http://archive.ubuntu.com/ubuntu noble main
+          deb-src http://archive.ubuntu.com/ubuntu noble-updates main 
+          deb-src http://archive.ubuntu.com/ubuntu noble-security main 
+          EOF
+          sudo apt update          
           sudo apt build-dep kglobalaccel
 
       - name: Install build tools
