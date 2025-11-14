@@ -1,0 +1,61 @@
+name: CI
+
+# Controls when the workflow will run
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
+
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  # This workflow contains a single job called "build"
+  env-setup:
+    # The type of runner that the job will run on
+    runs-on: ubuntu-24.04 
+
+    # Steps represent a sequence of tasks that will be executed as part of the job
+    steps:
+      # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
+      - name: Checkout with submodules
+        uses: actions/checkout@v4
+        with:
+            submodules: recursive
+            token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Update submodules
+        run: |
+          git submodule update --remote --recursive
+          git submodule status
+          
+      - name: Enable Ubuntu source repositories
+        run: |
+          sudo sed -i 's/# deb-src/deb-src/' /etc/apt/sources.list
+          sudo apt update
+
+      - name: Install build tools
+        run: sudo apt install build-essential cmake 
+
+      - name: Create build directory structure
+        run: |
+            mkdir -p kglobalaccel/build
+            mkdir -p kguiaddons/build
+            mkdir -p kwindowsystem/build
+            mkdir -p kwin/build
+            
+  build-kglobalaccel:
+    runs-on: ubuntu-24.04
+    steps:
+      - name: configure
+        run: |
+          cd kglobalaccel/build
+          sudo apt build-dep kglobalaccel          
+
+      - name: Cmake
+        run: cmake -G "Unix Makefiles" ..
+
+      - name: Make
+        run: make
