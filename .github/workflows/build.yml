@@ -167,12 +167,12 @@ jobs:
         with:
           submodules: recursive
           token: ${{ secrets.GITHUB_TOKEN }}
-
-      - name: Download artifacts
-        uses: actions/download-artifact@v4
-        with:
-          path: artifacts/
-
+          
+      - name: Update submodules
+        run: |
+          git submodule update --remote --recursive
+          git submodule status
+          
       - name: Enable Ubuntu source repositories
         run: |
           sudo tee /etc/apt/sources.list.d/enable-sources.list << 'EOF'
@@ -186,22 +186,32 @@ jobs:
         run: sudo apt install build-essential cmake 
 
       - name: Create build directory structure
-        run: mkdir -p kwin/build
+        run: |
+          mkdir -p kglobalaccel/build
+          mkdir -p kguiaddons/build
+          mkdir -p kwindowsystem/build
+          mkdir -p kwin/build
         
       - name: Install build dependencies
         run: sudo apt build-dep kwin kglobalaccel kguiaddons kwindowsystem
 
       - name: Install kglobalaccel
-        working-directory: artifacts/kglobalaccel-build/
-        run: sudo make install          
+        working-directory: ./kglobalaccel/build
+        run: |
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
+          sudo make install -j$(nproc)
 
       - name: install kguiaddons
-        working-directory: artifacts/kguiaddons-build/
-        run: sudo make install
+        working-directory: ./kguiaddons/build
+        run: |
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
+          sudo make install -j$(nproc)
         
       - name: Install kwindowsystem
-        working-directory: artifacts/kwindowsystem-build/
-        run: sudo make install
+        working-directory: ./kwindowsystem/build
+        run: |
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
+          sudo make install -j$(nproc)
 
       - name: Configure
         working-directory: ./kwin/build
