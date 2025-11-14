@@ -26,7 +26,7 @@ jobs:
           
       - name: Enable Ubuntu source repositories
         run: |
-          sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
+          sudo sed -i 's/^Types: deb$/Types: deb deb-src/' /etc/apt/sources.list.d/ubuntu.sources
           sudo apt update
 
       - name: Install build tools
