@@ -31,8 +31,7 @@ jobs:
           deb-src http://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse
           deb-src http://archive.ubuntu.com/ubuntu noble-security main restricted universe multiverse
           EOF
-          sudo apt update          
-          sudo apt build-dep kglobalaccel
+          sudo apt update
 
       - name: Install build tools
         run: sudo apt install build-essential cmake 
@@ -45,11 +44,20 @@ jobs:
 
       - name: Cmake
         working-directory: ./kglobalaccel/build
-        run: cmake -G "Unix Makefiles" ..
+        run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 
       - name: Make
         working-directory: ./kglobalaccel/build
-        run: make
+        run: make -j$(nproc)
+        
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kglobalaccel-build
+          path: |
+            kglobalaccel/build/
+            !kglobalaccel/build/CMakeFiles/
+          if-no-files-found: error
 
         
   build-kguiaddons:
@@ -68,7 +76,11 @@ jobs:
           
       - name: Enable Ubuntu source repositories
         run: |
-          sudo sed -i 's/# deb-src/deb-src/' /etc/apt/sources.list
+          sudo tee /etc/apt/sources.list.d/enable-sources.list << 'EOF'
+          deb-src http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse
+          deb-src http://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse
+          deb-src http://archive.ubuntu.com/ubuntu noble-security main restricted universe multiverse
+          EOF
           sudo apt update
 
       - name: Install build tools
@@ -82,13 +94,22 @@ jobs:
 
       - name: Cmake
         working-directory: ./kguiaddons/build
-        run: cmake -G "Unix Makefiles" ..
+        run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 
       - name: Make
         working-directory: ./kguiaddons/build
-        run: make
-
+        run: make -j$(nproc)
         
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kguiaddons-build
+          path: |
+            kguiaddons/build/
+            !kguiaddons/build/CMakeFiles/
+          if-no-files-found: error
+
+          
   build-kwindowsystem:
     runs-on: ubuntu-24.04 
     steps:
@@ -105,7 +126,11 @@ jobs:
           
       - name: Enable Ubuntu source repositories
         run: |
-          sudo sed -i 's/# deb-src/deb-src/' /etc/apt/sources.list
+          sudo tee /etc/apt/sources.list.d/enable-sources.list << 'EOF'
+          deb-src http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse
+          deb-src http://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse
+          deb-src http://archive.ubuntu.com/ubuntu noble-security main restricted universe multiverse
+          EOF
           sudo apt update
 
       - name: Install build tools
@@ -119,8 +144,17 @@ jobs:
 
       - name: Cmake
         working-directory: ./kwindowsystem/build
-        run: cmake -G "Unix Makefiles" ..
+        run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 
       - name: Make
         working-directory: ./kwindowsystem/build
-        run: make
+        run: make -j$(nproc)
+        
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kwindowsystem-build
+          path: |
+            kwindowsystem/build/
+            !kwindowsystem/build/CMakeFiles/
+          if-no-files-found: error
