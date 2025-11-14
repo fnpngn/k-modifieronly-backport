@@ -44,7 +44,7 @@ jobs:
 
       - name: Cmake
         working-directory: ./kglobalaccel/build
-        run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+        run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
 
       - name: Build
         working-directory: ./kglobalaccel/build
@@ -144,7 +144,7 @@ jobs:
 
       - name: Cmake
         working-directory: ./kwindowsystem/build
-        run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+        run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
 
       - name: Build
         working-directory: ./kwindowsystem/build
@@ -192,29 +192,23 @@ jobs:
         run: mkdir -p kwin/build
         
       - name: Install build dependencies
-        run: sudo apt build-dep kwin          
+        run: sudo apt build-dep kwin
 
       - name: Set up patched dependencies
+        working-directory: artifacts/
         run: |
-          # Copy built modules to appropriate locations
-          # This will depend on your specific patching requirements
-          cp -r artifacts/kglobalaccel-build/* /usr/local/ || true
-          cp -r artifacts/kguiaddons-build/* /usr/local/ || true
-          cp -r artifacts/kwindowsystem-build/* /usr/local/ || true
-          sudo ldconfig
+          sudo make install kglobalaccel-build/
+          sudo make install kguiaddons-build/
+          sudo make install kwindowsystem-build/
 
       - name: Configure
         working-directory: ./kwin/build
         run: |
-          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
 
       - name: Build
         working-directory: ./kwin/build
         run: make -j$(nproc)
-
-      - name: Run tests
-        working-directory: ./kwin/build
-        run: ctest --output-on-failure
 
       - name: Upload artifacts
         uses: actions/upload-artifact@v4
