@@ -1,7 +1,7 @@
 # State of this project
 The goal of this project is written [here](#when)   
-It seems that the [referenced](#original-changes) functionality merged into the applied/ubuntu/noble version of KDE/kwin and dependencies is insufficient to provide modifier only shortcuts. With all projects building and installed, the modifier shortcuts are incorrectly mapped to unrecognized key codes.   
-Since it is unfeasible to backport the entirety of Plasma 6 into 5 and there does not seem to be a definitive dependency/merge request upstream that was involved in solving this, the project is indefinitely frozen.   
+It seems that the [referenced](#original-changes) functionality merged into the `applied/ubuntu/noble` version of KDE/kwin and dependencies is **insufficient** to provide modifier only shortcuts. With all projects building and installed, the modifier shortcuts are incorrectly mapped to unrecognized key codes.   
+Since it is unfeasible to backport the entirety of Plasma 6 into 5 and there does not seem to be a definitive dependency/merge request [upstream](https://invent.kde.org/frameworks/kwindowsystem/-/merge_requests/) that was involved in solving this, the project is indefinitely frozen.   
    
 If you wish to use a custom modifier only shortcut that does not break your system like KDE 5 does by default, look into writing your own systemd daemon by reading /dev/input and issuing commands to desktop through dbus.
 
