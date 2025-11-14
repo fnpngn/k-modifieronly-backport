@@ -1,3 +1,10 @@
+# State of this project
+The goal of this project is written [here](#when)   
+It seems that the [referenced](#original-changes) functionality merged into the applied/ubuntu/noble version of KDE/kwin and dependencies is insufficient to provide modifier only shortcuts. With all projects building and installed, the modifier shortcuts are incorrectly mapped to unrecognized key codes.   
+Since it is unfeasible to backport the entirety of Plasma 6 into 5 and there does not seem to be a definitive dependency/merge request upstream that was involved in solving this, the project is indefinitely frozen.   
+   
+If you wish to use a custom modifier only shortcut that does not break your system like KDE 5 does by default, look into writing your own systemd daemon by reading /dev/input and issuing commands to desktop through dbus.
+
 # What
 This is a navigation repository as the project requires patching multiple KDE modules.        
 This is a private attempt to backport the patches made in KDE that allow to use modifier only key chords as shortcuts.   
@@ -33,22 +40,23 @@ The default presets for modifier shortcuts in keyboard layout options are not on
 
 
 # When
-This project is unfinished. Some modules are done, others can not yet be compiled, some only compile without autotests.  
 The goal is to port all the initial functionality, resolve tests, then port the further [updates](https://invent.kde.org/plasma/plasma-desktop/-/merge_requests/2342) and [bugfixes](https://bugs.kde.org/show_bug.cgi?id=489187)   
-Currently facing issues resolving phantom Qt dependencies that simultaneously do not yet exist and are [deprecated](https://github.com/Zren/material-decoration/issues/60)
 
 # Build
+##### Install build tools and kde sources
 ```
-git submodule update
+git submodule update --remote --recursive
 
 sudo apt install build-essential cmake
 
 sudo apt build-dep kglobalaccel kwin kwindowsystem kguiaddons
 ```
-
-kwin example:
+kglobalaccel example:
 ```
-cd kwin && mkdir build && cd build
-cmake -G "Unix Makefiles" ..
-make
+mkdir -p kglobalaccel/build && cd kglobalaccel/build
+cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release -DBUILD_TESTING=OFF ..
+sudo make install
 ```
+##### Build order
+- kglobalaccel, kguiaddons, kwindowsystem can be built in any order
+- kwin must be built with previous patches installed
