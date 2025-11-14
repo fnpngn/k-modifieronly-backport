@@ -48,15 +48,15 @@ jobs:
             
   build-kglobalaccel:
     runs-on: ubuntu-24.04
-    needs: [env-setup]
+    needs: [env-setup]    
     steps:
       - name: configure
-        run: |
-          cd kglobalaccel/build
-          sudo apt build-dep kglobalaccel          
+        run: sudo apt build-dep kglobalaccel
 
       - name: Cmake
+        working-directory: ./kglobalaccel/build
         run: cmake -G "Unix Makefiles" ..
 
       - name: Make
+        working-directory: ./kglobalaccel/build
         run: make
