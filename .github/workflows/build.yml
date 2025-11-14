@@ -39,14 +39,14 @@ jobs:
       - name: Create build directory structure
         run: mkdir -p kglobalaccel/build
             
-      - name: configure
+      - name: Configure
         run: sudo apt build-dep kglobalaccel
 
       - name: Cmake
         working-directory: ./kglobalaccel/build
         run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 
-      - name: Make
+      - name: Build
         working-directory: ./kglobalaccel/build
         run: make -j$(nproc)
         
@@ -89,14 +89,14 @@ jobs:
       - name: Create build directory structure
         run: mkdir -p kguiaddons/build
             
-      - name: configure
+      - name: Configure
         run: sudo apt build-dep kguiaddons
 
       - name: Cmake
         working-directory: ./kguiaddons/build
         run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 
-      - name: Make
+      - name: Build
         working-directory: ./kguiaddons/build
         run: make -j$(nproc)
         
@@ -139,14 +139,14 @@ jobs:
       - name: Create build directory structure
         run: mkdir -p kwindowsystem/build
             
-      - name: configure
+      - name: Configure
         run: sudo apt build-dep kwindowsystem
 
       - name: Cmake
         working-directory: ./kwindowsystem/build
         run: cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
 
-      - name: Make
+      - name: Build
         working-directory: ./kwindowsystem/build
         run: make -j$(nproc)
         
@@ -157,4 +157,70 @@ jobs:
           path: |
             kwindowsystem/build/
             !kwindowsystem/build/CMakeFiles/
+          if-no-files-found: error
+
+          
+  build-kwin:
+    name: Build kwin
+    runs-on: ubuntu-24.04
+    needs: [build-kglobalaccel, build-kguiaddons, build-kwindowsystem]
+    steps:
+      - name: Checkout with submodules
+        uses: actions/checkout@v4
+        with:
+          submodules: recursive
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Download artifacts
+        uses: actions/download-artifact@v4
+        with:
+          path: artifacts/
+
+      - name: Enable Ubuntu source repositories
+        run: |
+          sudo tee /etc/apt/sources.list.d/enable-sources.list << 'EOF'
+          deb-src http://archive.ubuntu.com/ubuntu noble main restricted universe multiverse
+          deb-src http://archive.ubuntu.com/ubuntu noble-updates main restricted universe multiverse
+          deb-src http://archive.ubuntu.com/ubuntu noble-security main restricted universe multiverse
+          EOF
+          sudo apt update
+
+      - name: Install build tools
+        run: sudo apt install build-essential cmake 
+
+      - name: Create build directory structure
+        run: mkdir -p kwin/build
+        
+      - name: Install build dependencies
+        run: sudo apt build-dep kwin          
+
+      - name: Set up patched dependencies
+        run: |
+          # Copy built modules to appropriate locations
+          # This will depend on your specific patching requirements
+          cp -r artifacts/kglobalaccel-build/* /usr/local/ || true
+          cp -r artifacts/kguiaddons-build/* /usr/local/ || true
+          cp -r artifacts/kwindowsystem-build/* /usr/local/ || true
+          sudo ldconfig
+
+      - name: Configure
+        working-directory: ./kwin/build
+        run: |
+          cmake -G "Unix Makefiles" -DCMAKE_BUILD_TYPE=Release ..
+
+      - name: Build
+        working-directory: ./kwin/build
+        run: make -j$(nproc)
+
+      - name: Run tests
+        working-directory: ./kwin/build
+        run: ctest --output-on-failure
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        with:
+          name: kwin-build
+          path: |
+            kwin/build/
+            !kwin/build/CMakeFiles/
           if-no-files-found: error
